@@ -1,1 +1,6 @@
-Petro;380674032222
+James_Kottak;0777654312
+Till_Lindemann;0224567321
+Lenny_Wolf;0887654321
+Klaus_Meine;0116441000
+John_Bon_Jovi;0554445555
+James_Hetfield;0117776600
