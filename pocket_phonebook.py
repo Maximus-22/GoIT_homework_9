@@ -24,7 +24,7 @@ def handler_com_change(name: str, phone: str, *args):
 
 def handler_com_phone(name: str, *args):
     if name in phonebook:
-        print(f"Your contact is {name} phone: {phonebook[name]}")
+        print(f"Your contact {name} has a number: {phonebook[name]}")
 
 def handler_com_showall(*args):
     for name, phone in sorted(phonebook.items()):
