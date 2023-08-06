@@ -41,12 +41,13 @@ def handler_com_help(*args):
 
 
 def handler_com_exit(*args):
-    if len(phonebook) > 0: 
-        with open('phonebook.txt', 'w') as file:
+    if len(phonebook) > 0:
+        file_store = "phonebook.txt"
+        with open(file_store, "w") as file:
             for name, phone in phonebook.items():
                 file.write(f"{name};{phone}\n")
         init(autoreset = True)
-        print(Fore.YELLOW + "\nGood bye!")        
+        print(Fore.YELLOW + "All data of this session are saved to a file " + Fore.BLUE + file_store + Fore.YELLOW + "\nGood bye!")        
     else:
         init(autoreset = True)
         print(Fore.YELLOW + "Good bye!")
@@ -130,8 +131,8 @@ def main():
         
     while 1:
         command_input = input("Common your command: ")
-        # if not command_input:
-        #     continue
+        if not command_input:
+            continue
         command, name, phone = command_parser(command_input)
         get_handler(command, name, phone)
         if command in ("exit", "close", "goodbye"):
