@@ -1,10 +1,11 @@
+import os
 from colorama import init, Fore
 
 phonebook = {}
 
 
 def handler_com_hello(*args):
-    print("Hi.\nCan I help You?")
+    print("Hi.\nCan I [help] You?")
 
 
 def handler_com_add(name: str, phone: str, *args):
@@ -57,40 +58,55 @@ def input_error(get_handler):
             return get_handler(*args, **kwargs)
         except KeyError:
             init(autoreset = True)
-            print(Fore.YELLOW + "Oops! Key Error")
+            print(Fore.YELLOW + "Oops! Key Error.\n" \
+                  "Wrong command. Please, enter the correct Command.")
         except ValueError:
             init(autoreset = True)
-            print(Fore.YELLOW + "Oops! Value Error")
+            print(Fore.YELLOW + "Oops! Value Error. \n" \
+                  "Invalid command parameters. Please, enter valid Name or Phone.")
         except IndexError:
             init(autoreset = True)
-            print(Fore.YELLOW + "Oops! Index Error")
+            print(Fore.YELLOW + "Oops! Index Error.\n" \
+                  "Command parameters are missing. Please, enter correct parameters.")
     return wrapper
+
+
+def command_parser(command_input: str) -> tuple:
+    command_split = command_input.split()
+    if len(command_split) == 1:
+        command = command_split[0].lower()
+        return command, None, None
+    else:
+        command = command_split[0].lower()
+        name = command_split[1].lower().title() if len(command_split[1]) > 2 else None
+        phone = command_split[2] if len(command_split[2]) >= 10 else None
+        return command, name, phone
 
 
 @input_error
-def get_handler(command: str):
-    def wrapper(*args, **kwargs):
-        try:
-            return COMMANDS[command](*args, **kwargs)
-        except KeyError:
-            init(autoreset = True)
-            print(Fore.YELLOW + "Woof-woof, this is wrong command.\nPlease, enter the correct command.")
-    return wrapper
-
-
-def command_parser(command_input: str) -> str:
-    command_split = command_input.split()
-    command = command_split[0].lower()
-    name = command_split[1].lower().title() if len(command_split) > 1 else None
-    phone = command_split[2] if len(command_split) > 2 else None
-    return command, name, phone
+def get_handler(command: str, name: str, phone: str):
+    # command, name, phone = command_parser(command_input)
+    if command not in COMMANDS:
+        raise KeyError
+    elif command in ("add", "change") and (name is None or phone is None):
+        raise IndexError
+    elif command == "phone" and name is None:
+        raise IndexError
+    elif command in ("add", "change") and not (name.isalpha() and phone.isdigit() and len(phone) < 10):
+        raise ValueError
+    elif command in ("change", "phone") and name not in phonebook:
+        raise ValueError
+    else:
+        return COMMANDS[command](name, phone)
 
 
 def main():
-    with open('phonebook.txt', 'r', encoding = "UTF-8") as file:
-        for line in file:
-            name, phone = line.strip().split(';')
-            phonebook[name] = phone
+    if os.path.exists("phonebook.txt"):
+        with open("phonebook.txt", "r", encoding = "UTF-8") as file:
+            for line in file:
+                name, phone = line.strip().split(';')
+                phonebook[name] = phone
+    
 
     init(autoreset = True)
     let_begin = "Please, choose command \"help\" for begin"
@@ -101,11 +117,10 @@ def main():
         if not command_input:
             continue
         command, name, phone = command_parser(command_input)
-        # Оскільки get_handler витягивает зі словника COMMANDS сігнатуру (назву) якойсь однієї функції
-        # то ми у цьому ж рядку можемо передати цієй знайденой фінкції її аргументи
-        get_handler(command)(name, phone)
-        if command in ["exit", "close", "goodbye"]:
+        get_handler(command, name, phone)
+        if command in ("exit", "close", "goodbye"):
             break
+
 
 if __name__ == "__main__":  
     main()
